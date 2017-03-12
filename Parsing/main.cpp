@@ -21,21 +21,6 @@ struct Value
     virtual ~Value()=default;
 };
 
-struct Null: public Value
-{
-    std::string null;
-    Value* parse(std::string data, int &k, int &test)
-    {
-        null="";
-        while(data[k]!=','&&data[k]!='}'&&data[k]!=']')
-        {
-            null+=data[k];
-            k++;
-        }
-        test++;
-        return this;
-    }
-};
 
 struct Bool: public Value
 {
@@ -55,39 +40,57 @@ struct Bool: public Value
 
 struct String: public Value
 {
-    std::string str;
-    Value* parse(std::string data, int &k, int &test)
+  std::string str;
+  Value* parse(std::string data, int &k, int &test)
+  {
+    str="";
+    k++;
+    while(data[k]!='"')
     {
-        str="";
-        k++;
-        while(data[k]!='"')
-        {
-            if(data[k]=='\\')
-                k++;
-            str+=data[k];
+        if(data[k]=='\\')
             k++;
-        }
-        test++;
-        return this;
+        str+=data[k];
+        k++;
     }
+    test++;
+    return this;
+  }
 };
 
 struct Number: public Value
 {
-    std::string number;
+  std::string number;
 
-    Value* parse(std::string data, int &k, int &test)
+  Value* parse(std::string data, int &k, int &test)
+  {
+    number = "";
+    while(data[k]=='-' || isdigit(data[k]) || data[k]=='e' || data[k]=='.')
     {
-        number = "";
-        while(data[k]=='-' || isdigit(data[k]) || data[k]=='e' || data[k]=='.')
-        {
-            number+=data[k];
-            k++;
-        }
-        test++;
-        return this;
+        number+=data[k];
+        k++;
+    }
+    test++;
+    return this;
+  }
+};
+
+
+struct Null: public Value
+{
+  std::string null;
+  Value* parse(std::string data, int &k, int &test)
+  {
+     null="";
+     while(data[k]!=','&&data[k]!='}'&&data[k]!=']')
+     {
+         null+=data[k];
+         k++;
+     }
+     test++;
+     return this;
     }
 };
+
 
 struct Array: public Value, std::vector<Value*>
 {
@@ -264,6 +267,8 @@ int Array::weight()
     }
     return total;
 }
+
+
 int main(int argc, char*argv[])
 {
     Bool jbool;
